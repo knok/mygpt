@@ -35,16 +35,19 @@ fn create_tokenizer() -> Result<Tokenizer> {
     let pre_tokenizer = pre_tokenizers::bert::BertPreTokenizer;
 
     // Model
-    let vocab_str = include_str!("../vocab.txt");
-    let mut vocab = HashMap::new();
-    for (index, line) in vocab_str.lines().enumerate() {
-        vocab.insert(line.trim_end().to_owned(), index as u32);
-    }
-    let wordpiece_builder = models::wordpiece::WordPiece::builder();
-    let wordpiece = wordpiece_builder
-        .vocab(vocab)
-        .unk_token("[UNK]".into())
-        .build().unwrap();
+    // let vocab_str = include_str!("../vocab.txt");
+    // let mut vocab = HashMap::new();
+    // for (index, line) in vocab_str.lines().enumerate() {
+    //     vocab.insert(line.trim_end().to_owned(), index as u32);
+    // }
+    // let wordpiece_builder = models::wordpiece::WordPiece::builder();
+    // let wordpiece = wordpiece_builder
+    //     .vocab(vocab)
+    //     .unk_token("[UNK]".into())
+    //     .build().unwrap();
+    let wordpiece_builder = models::wordpiece::WordPiece::from_file("./vocab.txt");
+    let wordpiece = wordpiece_builder // .unk_token("[UNK]".into())
+    .build()?;
 
     // Post processor
     let post_processor = processors::bert::BertProcessing::new(("[SEP]".into(), 102), ("[CLS]".into(), 101));
@@ -96,9 +99,10 @@ fn create_input_tensor(encoding: &Encoding) -> Result<TVec<Tensor>> {
 fn inference(input_tensor: TVec<Tensor>, seq_length: usize) -> Result<Array<f32, Dim<[usize; 2]>>> {
 
     // load model
-    let onnx_model = include_bytes!("../bert-masked.onnx");
+    // let onnx_model = include_bytes!("../bert-masked.onnx");
     let model = tract_onnx::onnx()
-        .model_for_read(&mut BufReader::new(&onnx_model[..]))?
+        // .model_for_read(&mut BufReader::new(&onnx_model[..]))?
+        .model_for_path("./bert-masked.onnx")?
         .with_input_fact(0, InferenceFact::dt_shape(i64::datum_type(), tvec!(1, seq_length)))?
         .with_input_fact(1, InferenceFact::dt_shape(i64::datum_type(), tvec!(1, seq_length)))?
         .with_input_fact(2, InferenceFact::dt_shape(i64::datum_type(), tvec!(1, seq_length)))?
