@@ -29,10 +29,10 @@ fn run_predict(word: &str) -> Result<String> {
 fn create_tokenizer() -> Result<Tokenizer> {
 
     // Normalizer
-    let normalizer = normalizers::bert::BertNormalizer::new(true, false, Some(false), false);
+    // let normalizer = normalizers::bert::BertNormalizer::new(true, false, Some(false), false);
 
     // PreTokenizer
-    let pre_tokenizer = pre_tokenizers::bert::BertPreTokenizer;
+    // let pre_tokenizer = pre_tokenizers::bert::BertPreTokenizer;
 
     // Model
     // let vocab_str = include_str!("../vocab.txt");
@@ -45,22 +45,23 @@ fn create_tokenizer() -> Result<Tokenizer> {
     //     .vocab(vocab)
     //     .unk_token("[UNK]".into())
     //     .build().unwrap();
-    let wordpiece_builder = models::wordpiece::WordPiece::from_file("./vocab.txt");
-    let wordpiece = wordpiece_builder // .unk_token("[UNK]".into())
-    .build()?;
+    // let wordpiece_builder = models::wordpiece::WordPiece::from_file("./vocab.txt");
+    // let wordpiece = wordpiece_builder // .unk_token("[UNK]".into())
+    // .build()?;
 
     // Post processor
-    let post_processor = processors::bert::BertProcessing::new(("[SEP]".into(), 102), ("[CLS]".into(), 101));
+    // let post_processor = processors::bert::BertProcessing::new(("[SEP]".into(), 102), ("[CLS]".into(), 101));
 
     // build Tokenizer
-    let mut tokenizer = Tokenizer::new(wordpiece);
-    tokenizer.with_normalizer(normalizer);
-    tokenizer.with_pre_tokenizer(pre_tokenizer);
-    tokenizer.with_post_processor(post_processor);
+    // let mut tokenizer = Tokenizer::new(wordpiece);
+    // tokenizer.with_normalizer(normalizer);
+    // tokenizer.with_pre_tokenizer(pre_tokenizer);
+    // tokenizer.with_post_processor(post_processor);
 
     // add [MASK] token
-    let mask_token = AddedToken::from("[MASK]", true );//.into()).single_word(true);
-    tokenizer.add_special_tokens(&[mask_token]);
+    // let mask_token = AddedToken::from("[MASK]", true );//.into()).single_word(true);
+    // tokenizer.add_special_tokens(&[mask_token]);
+    let tokenizer = Tokenizer::from_file("./tokenizer.json")?;
 
     // tokenize
     Ok(tokenizer)
@@ -89,8 +90,9 @@ fn create_input_tensor(encoding: &Encoding) -> Result<TVec<Tensor>> {
     // prepare input tensor 
     let ids: Tensor = element2tensor(encoding.get_ids())?;
     let attention_mask: Tensor = element2tensor(encoding.get_attention_mask())?;
-    let type_ids: Tensor = element2tensor(encoding.get_type_ids())?;
-    let input_tensor = tvec![ids, attention_mask, type_ids];
+    // let type_ids: Tensor = element2tensor(encoding.get_type_ids())?;
+    // let input_tensor = tvec![ids, attention_mask, type_ids];
+    let input_tensor = tvec![ids, attention_mask];
 
     Ok(input_tensor)
 }
@@ -102,10 +104,11 @@ fn inference(input_tensor: TVec<Tensor>, seq_length: usize) -> Result<Array<f32,
     // let onnx_model = include_bytes!("../bert-masked.onnx");
     let model = tract_onnx::onnx()
         // .model_for_read(&mut BufReader::new(&onnx_model[..]))?
-        .model_for_path("./bert-masked.onnx")?
+        // .model_for_path("./bert-masked.onnx")?
+        .model_for_path("./distilgpt2.onnx/model.onnx")?
         .with_input_fact(0, InferenceFact::dt_shape(i64::datum_type(), tvec!(1, seq_length)))?
         .with_input_fact(1, InferenceFact::dt_shape(i64::datum_type(), tvec!(1, seq_length)))?
-        .with_input_fact(2, InferenceFact::dt_shape(i64::datum_type(), tvec!(1, seq_length)))?
+        // .with_input_fact(2, InferenceFact::dt_shape(i64::datum_type(), tvec!(1, seq_length)))?
         .into_optimized()?
         .into_runnable()?;
 
