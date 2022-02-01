@@ -98,6 +98,7 @@ fn create_input_tensor(encoding: &Encoding) -> Result<TVec<Tensor>> {
 }
 
 
+// fn inference(input_tensor: TVec<Tensor>, seq_length: usize) -> Result<Array<f32, Dim<[usize; 2]>>> {
 fn inference(input_tensor: TVec<Tensor>, seq_length: usize) -> Result<Array<f32, Dim<[usize; 2]>>> {
 
     // load model
@@ -109,7 +110,7 @@ fn inference(input_tensor: TVec<Tensor>, seq_length: usize) -> Result<Array<f32,
         .with_input_fact(0, InferenceFact::dt_shape(i64::datum_type(), tvec!(1, seq_length)))?
         .with_input_fact(1, InferenceFact::dt_shape(i64::datum_type(), tvec!(1, seq_length)))?
         // .with_input_fact(2, InferenceFact::dt_shape(i64::datum_type(), tvec!(1, seq_length)))?
-        .into_optimized()?
+        // .into_optimized()?
         .into_runnable()?;
 
     // inference
@@ -154,6 +155,11 @@ fn decode(output: &Array<f32, Dim<[usize; 2]>>, tokenizer: &Tokenizer, mask_posi
     }
 
     Ok(decoded)
+}
+
+fn decode2(output: &Array<f32, Dim<[usize; 2]>>, tokenizer: &Tokenizer,) -> Result<String> {
+    let result = "";
+    Ok(result)
 }
 
 fn main() -> Result<()> {
