@@ -1,0 +1,13 @@
+[package]
+name = "mygpt"
+version = "0.1.0"
+authors = ["nokubi@gmail.com"]
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+tokenizers = "0.11.0"
+wasm-bindgen = "0.2.74"
+tract-onnx = "0.15.8"
+console_error_panic_hook = "0.1.6"
