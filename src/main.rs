@@ -23,7 +23,8 @@ fn run_predict(word: &str) -> Result<String> {
         create_input_tensor(&encoding)?,
         encoding.get_ids().len()
         )?;
-    decode(&output, &tokenizer, mask_positions, word)
+    // decode(&output, &tokenizer, mask_positions, word)
+    decode2(&output, &tokenizer)
 }
 
 fn create_tokenizer() -> Result<Tokenizer> {
@@ -61,7 +62,8 @@ fn create_tokenizer() -> Result<Tokenizer> {
     // add [MASK] token
     // let mask_token = AddedToken::from("[MASK]", true );//.into()).single_word(true);
     // tokenizer.add_special_tokens(&[mask_token]);
-    let tokenizer = Tokenizer::from_file("./tokenizer.json")?;
+    // let tokenizer = Tokenizer::from_file("./tokenizer.json")?;
+    let tokenizer = Tokenizer::from_pretrained("distilgpt2", None)?;
 
     // tokenize
     Ok(tokenizer)
@@ -158,7 +160,16 @@ fn decode(output: &Array<f32, Dim<[usize; 2]>>, tokenizer: &Tokenizer, mask_posi
 }
 
 fn decode2(output: &Array<f32, Dim<[usize; 2]>>, tokenizer: &Tokenizer,) -> Result<String> {
-    let result = "".to_string();
+    let mut words: Vec<String> = Vec::new();
+    let shape = output.shape();
+    for i in 0..shape[0] { //output.len() {
+        let prediction = output.slice(s![i, ..]);
+        let prediction = prediction.as_slice().ok_or("Output is invalid")?;
+        let max_id: u32 = argmax(prediction) as u32;
+        let word = tokenizer.decode(vec![max_id], false)?;
+        words.push(word);
+    }
+    let result = words.join("");
     Ok(result)
 }
 
