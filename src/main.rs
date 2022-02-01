@@ -158,7 +158,7 @@ fn decode(output: &Array<f32, Dim<[usize; 2]>>, tokenizer: &Tokenizer, mask_posi
 }
 
 fn decode2(output: &Array<f32, Dim<[usize; 2]>>, tokenizer: &Tokenizer,) -> Result<String> {
-    let result = "";
+    let result = "".to_string();
     Ok(result)
 }
 
