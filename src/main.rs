@@ -63,7 +63,8 @@ fn create_tokenizer() -> Result<Tokenizer> {
     // let mask_token = AddedToken::from("[MASK]", true );//.into()).single_word(true);
     // tokenizer.add_special_tokens(&[mask_token]);
     // let tokenizer = Tokenizer::from_file("./tokenizer.json")?;
-    let tokenizer = Tokenizer::from_pretrained("distilgpt2", None)?;
+    // let tokenizer = Tokenizer::from_pretrained("distilgpt2", None)?;
+    let tokenizer = Tokenizer::from_pretrained("gpt2-medium", None)?;
 
     // tokenize
     Ok(tokenizer)
@@ -108,7 +109,8 @@ fn inference(input_tensor: TVec<Tensor>, seq_length: usize) -> Result<Array<f32,
     let model = tract_onnx::onnx()
         // .model_for_read(&mut BufReader::new(&onnx_model[..]))?
         // .model_for_path("./bert-masked.onnx")?
-        .model_for_path("./distilgpt2.onnx/model.onnx")?
+        // .model_for_path("./distilgpt2.onnx/model.onnx")?
+        .model_for_path("./gpt2.onnx")?
         .with_input_fact(0, InferenceFact::dt_shape(i64::datum_type(), tvec!(1, seq_length)))?
         .with_input_fact(1, InferenceFact::dt_shape(i64::datum_type(), tvec!(1, seq_length)))?
         // .with_input_fact(2, InferenceFact::dt_shape(i64::datum_type(), tvec!(1, seq_length)))?
